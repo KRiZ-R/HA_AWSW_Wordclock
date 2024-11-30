@@ -3,6 +3,8 @@
 
 This is a custom integration for controlling the AWSW WordClock using Home Assistant.
 
+![Bildschirmfoto 2024-11-30 um 15 36 48](https://github.com/user-attachments/assets/9bc1ace4-eee2-4e9e-99b6-e08400a31fa1)
+![Bildschirmfoto 2024-11-30 um 15 45 02](https://github.com/user-attachments/assets/0dac0164-196d-40bb-881a-427a641b7176)
 
 
 ## Features
