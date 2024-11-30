@@ -11,7 +11,8 @@ This is a custom integration for controlling the AWSW WordClock using Home Assis
 
 ## Requirements
 - A working AWSW WordClock with API access enabled.
-- Home Assistant version 2023.10 or higher.
+- https://www.printables.com/model/768062-wordclock-16x16-2024 is the one i use
+- Home Assistant version 2024.11 or higher.
 
 ## Installation
 
@@ -46,4 +47,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ---
 
 ### Credits
-Created for the AWSW WordClock community.
+Idea by myself, most of the work is done by ChatGPT, created for the AWSW WordClock community.
