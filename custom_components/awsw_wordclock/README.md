@@ -17,7 +17,7 @@ This is a custom integration for controlling the AWSW WordClock using Home Assis
 ## Installation
 
 ### Manual Installation
-1. Download the latest release from the [Releases](https://github.com/yourusername/awsw_wordclock/releases) page.
+1. Download the latest release from the [Releases](https://github.com/bluenazgul/HA_AWSW_Wordclock/releases) page.
 2. Extract the contents and copy the `awsw_wordclock` folder to your `custom_components` directory in Home Assistant.
    - The path should be: `custom_components/awsw_wordclock/`
 3. Restart Home Assistant.
