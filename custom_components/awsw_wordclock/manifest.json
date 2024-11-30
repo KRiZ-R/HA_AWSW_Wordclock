@@ -1,12 +1,12 @@
 
 {
-  "domain": "awsw_wordclock",
+  "domain": "ha_awsw_wordclock",
   "name": "AWSW WordClock",
   "version": "1.0.0",
-  "documentation": "https://github.com/yourusername/awsw_wordclock",
+  "documentation": "https://github.com/bluenazgul/HA_AWSW_Wordclock",
   "requirements": [],
   "dependencies": [],
-  "codeowners": ["@yourusername"],
+  "codeowners": ["@b1u3n4zgu1"],
   "config_flow": true,
   "iot_class": "local_polling",
   "logo": "icon.png"
