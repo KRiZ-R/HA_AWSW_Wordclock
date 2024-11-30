@@ -1,0 +1,13 @@
+
+{
+  "domain": "awsw_wordclock",
+  "name": "AWSW WordClock",
+  "version": "1.0.0",
+  "documentation": "https://github.com/yourusername/awsw_wordclock",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": ["@yourusername"],
+  "config_flow": true,
+  "iot_class": "local_polling",
+  "logo": "icon.png"
+}
