@@ -1,6 +1,6 @@
 
 {
-  "domain": "ha_awsw_wordclock",
+  "domain": "awsw_wordclock",
   "name": "AWSW WordClock",
   "version": "1.0.1",
   "documentation": "https://github.com/bluenazgul/HA_AWSW_Wordclock",
