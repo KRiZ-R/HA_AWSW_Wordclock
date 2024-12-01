@@ -7,14 +7,87 @@ This is a custom integration for controlling the AWSW WordClock using Home Assis
 ![Bildschirmfoto 2024-11-30 um 15 45 02](https://github.com/user-attachments/assets/0dac0164-196d-40bb-881a-427a641b7176)
 
 As iam not an Developer iam not sure if iam able to expand Features or fix Bugs, all the work here was done by ChatGPT with a lot of
-testing and troubbleshooting. Right now it is only testet with the German Words.
+testing and troubbleshooting.
 
 
 ## Features
-- Control 12 extra words as switches.
+- Control up to 12 extra words as switches.
 - Automatically detects and registers a WordClock device using its IP address.
 - Direct link to the WordClock Web Interface for configuration.
+- Supports 7 Languages (German, English, Dutch, French, Italian, Swedish, Spanish)
 - Supports unique entities for each word.
+  - German
+        1: "ALARM"
+        2: "GEBURTSTAG"
+        3: "MÜLL RAUS BRINGEN"
+        4: "AUTO"
+        5: "FEIERTAG"
+        6: "FORMEL1"
+        7: "GELBER SACK"
+        8: "URLAUB"
+        9: "WERKSTATT"
+        10: "ZEIT ZUM ZOCKEN"
+        11: "FRISEUR"
+        12: "TERMIN"
+  - English
+        1: "COME HERE"
+        2: "LUNCH TIME"
+        3: "ALARM"
+        4: "GARBAGE"
+        5: "HOLIDAY"
+        6: "TEMPERATURE"
+        7: "DATE"
+        8: "BIRTHDAY"
+        9: "DOORBELL"
+  - Dutch
+        1: "KOM HIER"
+        2: "LUNCH TIJD"
+        3: "ALARM"
+        4: "AFVAL"
+        5: "VAKANTIE"
+        6: "TEMPERATUUR"
+        7: "DATUM"
+        8: "VERJAARDAG"
+        9: "DEURBEL"
+  - French
+        1: "ALARME"
+        2: "ANNIVERSAIRE"
+        3: "POUBELLE"
+        4: "A TABLE"
+        5: "VACANCES"
+        6: "VIENS ICI"
+        7: "SONNETTE"
+        8: "TEMPERATURE"
+        9: "DATE"
+  - Italian
+        1: "VIENI QUI"
+        2: "ORA DI PRANZO"
+        3: "ALLARME"
+        4: "VACANZA"
+        5: "TEMPERATURA"
+        6: "DATA"
+        7: "COMPLEANNO"
+        8: "CAMPANELLO"
+  - Swedish
+        1: "FÖDELSEDAG"
+        2: "LARM"
+        3: "HÖGTID"
+        4: "SEMESTER"
+        5: "LADDA NER"
+        6: "LUNCHTID"
+        7: "KOM HIT"
+        8: "DÖRRKLOCKA"
+        9: "TEMPERATUR"
+  - Spanish
+        1: "CUMPLEAÑOS"
+        2: "ALARMA"
+        3: "VACACIONES"
+        4: "DÍA DE BASURA"
+        5: "FECHA"
+        6: "HORA DE ALMUERZO"
+        7: "VEN AQUÍ"
+        8: "TIMBRE"
+        9: "TEMPERATURA"
 
 ## Requirements
 - A working AWSW WordClock with API access enabled.
@@ -54,4 +127,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ---
 
 ### Credits
-Idea by myself, most of the work is done by ChatGPT, created for the [AWSW WordClock](https://www.printables.com/model/768062-wordclock-16x16-2024/) community.
+Idea of this Intergration by myself, most of the work is done by ChatGPT, created for the [AWSW WordClock](https://www.printables.com/model/768062-wordclock-16x16-2024/) community.
