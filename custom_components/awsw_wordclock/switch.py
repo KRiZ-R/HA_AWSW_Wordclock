@@ -100,8 +100,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     LOGGER.info("Setting up WordClock switches for IP: %s with language: %s", ip_address, language)
 
     words = LANGUAGE_WORDS.get(language, {})
+    if not words:
+        LOGGER.error("Language '%s' not found. No switches will be added.", language)
+        return
+
     for word_id, word_name in words.items():
-        switches.append(WordClockSwitch(ip_address, word_id, word_name, device_id))
+        switches.append(WordClockSwitch(hass, ip_address, word_id, word_name, device_id))
 
     async_add_entities(switches)
 
@@ -109,7 +113,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 class WordClockSwitch(SwitchEntity):
     """Representation of a WordClock extra word as a switch."""
 
-    def __init__(self, ip_address, word_id, name, device_id):
+    def __init__(self, hass, ip_address, word_id, name, device_id):
+        self.hass = hass
         self._ip_address = ip_address
         self._word_id = word_id
         self._name = name
@@ -153,17 +158,23 @@ class WordClockSwitch(SwitchEntity):
     async def async_update(self):
         """Fetch the current status of the switch."""
         url = f"http://{self._ip_address}:2023/ewstatus/?{self._word_id}"
-        async with aiohttp.ClientSession() as session:
+        session = self.hass.data[DOMAIN].get("session")
+        try:
             async with session.get(url) as response:
                 if response.status == 200:
                     self._is_on = (await response.text()).strip() == "1"
                 else:
                     LOGGER.error("Failed to fetch status for Word %s (HTTP %d)", self._name, response.status)
+        except aiohttp.ClientError as e:
+            LOGGER.error("Failed to fetch status for Word %s: %s", self._name, e)
         self.async_write_ha_state()
 
     async def _send_request(self, state):
         url = f"http://{self._ip_address}:2023/ew/?ew{self._word_id}={state}"
-        async with aiohttp.ClientSession() as session:
+        session = self.hass.data[DOMAIN].get("session")
+        try:
             async with session.get(url) as response:
                 if response.status != 200:
                     LOGGER.error("Request to %s failed with HTTP %d", url, response.status)
+        except aiohttp.ClientError as e:
+            LOGGER.error("Failed to send request to %s: %s", url, e)
