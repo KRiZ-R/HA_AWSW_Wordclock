@@ -7,7 +7,7 @@ This is a custom integration for controlling the AWSW WordClock using Home Assis
 ![Bildschirmfoto 2024-11-30 um 15 45 02](https://github.com/user-attachments/assets/0dac0164-196d-40bb-881a-427a641b7176)
 
 As iam not an Developer iam not sure if iam able to expand Features or fix Bugs, all the work here was done by ChatGPT with a lot of
-testing and troubbleshooting. Right now it is only testet with the German Words.
+testing and troubbleshooting.
 
 
 ## Features
