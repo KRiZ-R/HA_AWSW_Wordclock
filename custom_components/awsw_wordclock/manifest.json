@@ -2,11 +2,11 @@
 {
   "domain": "ha_awsw_wordclock",
   "name": "AWSW WordClock",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "documentation": "https://github.com/bluenazgul/HA_AWSW_Wordclock",
-  "requirements": [],
+  "requirements": "https://www.printables.com/model/768062-wordclock-16x16-2024",
   "dependencies": [],
-  "codeowners": ["@b1u3n4zgu1"],
+  "codeowners": ["@bluenazgul"],
   "config_flow": true,
   "iot_class": "local_polling",
   "logo": "icon.png"
