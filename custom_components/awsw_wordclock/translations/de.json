@@ -1,0 +1,24 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "Geben Sie die IP-Adresse Ihres WordClock-Geräts ein.",
+                "data": {"ip_address": "IP-Adresse"}
+            },
+            "language": {
+                "description": "Wählen Sie die Sprache für Ihre WordClock aus.",
+                "data": {"language": "Sprache"}
+            }
+        },
+        "error": {"invalid_ip": "Ungültige IP-Adresse."},
+        "language": {
+            "german": "Deutsch",
+            "english": "Englisch",
+            "dutch": "Niederländisch",
+            "french": "Französisch",
+            "italian": "Italienisch",
+            "swedish": "Schwedisch",
+            "spanish": "Spanisch"
+        }
+    }
+}
