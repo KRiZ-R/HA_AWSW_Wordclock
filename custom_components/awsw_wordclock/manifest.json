@@ -4,7 +4,7 @@
   "name": "AWSW WordClock",
   "version": "1.0.1",
   "documentation": "https://github.com/bluenazgul/HA_AWSW_Wordclock",
-  "requirements": "https://www.printables.com/model/768062-wordclock-16x16-2024",
+  "requirements": [],
   "dependencies": [],
   "codeowners": ["@bluenazgul"],
   "config_flow": true,
