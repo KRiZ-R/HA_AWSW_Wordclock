@@ -105,6 +105,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         return
 
     for word_id, word_name in words.items():
+        LOGGER.debug("Adding switch for Word %s (ID: %d)", word_name, word_id)
         switches.append(WordClockSwitch(hass, ip_address, word_id, word_name, device_id))
 
     async_add_entities(switches)
@@ -146,19 +147,30 @@ class WordClockSwitch(SwitchEntity):
     async def async_turn_on(self, **kwargs):
         LOGGER.debug("Turning on Word %s (ID: %d)", self._name, self._word_id)
         self._is_on = True
-        await self._send_request("1")
+        try:
+            await self._send_request("1")
+        except Exception as e:
+            LOGGER.error("Failed to turn on Word %s: %s", self._name, e)
+            self._is_on = False
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         LOGGER.debug("Turning off Word %s (ID: %d)", self._name, self._word_id)
         self._is_on = False
-        await self._send_request("0")
+        try:
+            await self._send_request("0")
+        except Exception as e:
+            LOGGER.error("Failed to turn off Word %s: %s", self._name, e)
         self.async_write_ha_state()
 
     async def async_update(self):
         """Fetch the current status of the switch."""
         url = f"http://{self._ip_address}:2023/ewstatus/?{self._word_id}"
         session = self.hass.data[DOMAIN].get("session")
+        if not session:
+            LOGGER.error("HTTP session not initialized.")
+            return
+
         try:
             async with session.get(url) as response:
                 if response.status == 200:
@@ -166,15 +178,24 @@ class WordClockSwitch(SwitchEntity):
                 else:
                     LOGGER.error("Failed to fetch status for Word %s (HTTP %d)", self._name, response.status)
         except aiohttp.ClientError as e:
-            LOGGER.error("Failed to fetch status for Word %s: %s", self._name, e)
+            LOGGER.error("HTTP request to fetch status for Word %s failed: %s", self._name, e)
+        except Exception as e:
+            LOGGER.error("Unexpected error during status update for Word %s: %s", self._name, e)
+
         self.async_write_ha_state()
 
     async def _send_request(self, state):
         url = f"http://{self._ip_address}:2023/ew/?ew{self._word_id}={state}"
         session = self.hass.data[DOMAIN].get("session")
+        if not session:
+            LOGGER.error("HTTP session not initialized.")
+            return
+
         try:
             async with session.get(url) as response:
                 if response.status != 200:
                     LOGGER.error("Request to %s failed with HTTP %d", url, response.status)
         except aiohttp.ClientError as e:
-            LOGGER.error("Failed to send request to %s: %s", url, e)
+            LOGGER.error("HTTP request to %s failed: %s", url, e)
+        except Exception as e:
+            LOGGER.error("Unexpected error during HTTP request to %s: %s", url, e)
