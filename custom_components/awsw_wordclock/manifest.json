@@ -2,7 +2,7 @@
 {
   "domain": "awsw_wordclock",
   "name": "AWSW WordClock",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "documentation": "https://github.com/bluenazgul/HA_AWSW_Wordclock",
   "requirements": [],
   "dependencies": [],
