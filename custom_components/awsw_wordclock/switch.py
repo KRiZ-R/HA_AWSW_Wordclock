@@ -93,34 +93,36 @@ LANGUAGE_WORDS = {
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     """Set up WordClock switches from a config entry."""
     ip_address = entry.data["ip_address"]
-    language = entry.data.get("language", "German")
+    # Load the language from entry.options or fallback to German
+    language = entry.options.get("language", "German")
     device_id = f"wordclock_{ip_address.replace('.', '_')}"
+    session = hass.data[DOMAIN][entry.entry_id]["session"]
     switches = []
 
     LOGGER.info("Setting up WordClock switches for IP: %s with language: %s", ip_address, language)
 
+    # Fetch words for the selected language
     words = LANGUAGE_WORDS.get(language, {})
     if not words:
-        LOGGER.error("Language '%s' not found. No switches will be added.", language)
-        return
+        LOGGER.error("Language '%s' not found. Using default (German).", language)
+        words = LANGUAGE_WORDS["German"]
 
     for word_id, word_name in words.items():
-        LOGGER.debug("Adding switch for Word %s (ID: %d)", word_name, word_id)
-        switches.append(WordClockSwitch(hass, ip_address, word_id, word_name, device_id))
+        switches.append(WordClockExtraWordSwitch(ip_address, word_id, word_name, device_id, session))
 
     async_add_entities(switches)
 
 
-class WordClockSwitch(SwitchEntity):
-    """Representation of a WordClock extra word as a switch."""
+class WordClockExtraWordSwitch(SwitchEntity):
+    """Representation of an extra word switch."""
 
-    def __init__(self, hass, ip_address, word_id, name, device_id):
-        self.hass = hass
+    def __init__(self, ip_address, word_id, name, device_id, session):
         self._ip_address = ip_address
         self._word_id = word_id
         self._name = name
         self._is_on = False
         self._device_id = device_id
+        self._session = session
 
     @property
     def name(self):
@@ -135,67 +137,29 @@ class WordClockSwitch(SwitchEntity):
         return f"{self._device_id}_word_{self._word_id}"
 
     @property
-    def device_info(self) -> DeviceInfo:
-        return DeviceInfo(
-            identifiers={(DOMAIN, self._device_id)},
-            name=f"WordClock ({self._ip_address})",
-            manufacturer="AWSW",
-            model="WordClock",
-            configuration_url=f"http://{self._ip_address}",
-        )
+    def device_info(self):
+        return {
+            "identifiers": {(DOMAIN, self._device_id)},
+            "name": f"WordClock ({self._ip_address})",
+            "manufacturer": "AWSW",
+            "model": "WordClock",
+        }
 
     async def async_turn_on(self, **kwargs):
-        LOGGER.debug("Turning on Word %s (ID: %d)", self._name, self._word_id)
         self._is_on = True
-        try:
-            await self._send_request("1")
-        except Exception as e:
-            LOGGER.error("Failed to turn on Word %s: %s", self._name, e)
-            self._is_on = False
+        await self._send_request("1")
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
-        LOGGER.debug("Turning off Word %s (ID: %d)", self._name, self._word_id)
         self._is_on = False
-        try:
-            await self._send_request("0")
-        except Exception as e:
-            LOGGER.error("Failed to turn off Word %s: %s", self._name, e)
-        self.async_write_ha_state()
-
-    async def async_update(self):
-        """Fetch the current status of the switch."""
-        url = f"http://{self._ip_address}:2023/ewstatus/?{self._word_id}"
-        session = self.hass.data[DOMAIN].get("session")
-        if not session:
-            LOGGER.error("HTTP session not initialized.")
-            return
-
-        try:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    self._is_on = (await response.text()).strip() == "1"
-                else:
-                    LOGGER.error("Failed to fetch status for Word %s (HTTP %d)", self._name, response.status)
-        except aiohttp.ClientError as e:
-            LOGGER.error("HTTP request to fetch status for Word %s failed: %s", self._name, e)
-        except Exception as e:
-            LOGGER.error("Unexpected error during status update for Word %s: %s", self._name, e)
-
+        await self._send_request("0")
         self.async_write_ha_state()
 
     async def _send_request(self, state):
         url = f"http://{self._ip_address}:2023/ew/?ew{self._word_id}={state}"
-        session = self.hass.data[DOMAIN].get("session")
-        if not session:
-            LOGGER.error("HTTP session not initialized.")
-            return
-
         try:
-            async with session.get(url) as response:
+            async with self._session.get(url) as response:
                 if response.status != 200:
-                    LOGGER.error("Request to %s failed with HTTP %d", url, response.status)
-        except aiohttp.ClientError as e:
-            LOGGER.error("HTTP request to %s failed: %s", url, e)
+                    LOGGER.error("Failed to send request to %s, HTTP %d", url, response.status)
         except Exception as e:
-            LOGGER.error("Unexpected error during HTTP request to %s: %s", url, e)
+            LOGGER.error("Error sending request to %s: %s", url, e)

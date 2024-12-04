@@ -10,7 +10,10 @@
                 "data": {"language": "Sprache"}
             }
         },
-        "error": {"invalid_ip": "Ungültige IP-Adresse."},
+        "error": {
+            "invalid_ip": "Ungültige IP-Adresse.",
+            "ip_exists": "Ein Gerät mit dieser IP-Adresse ist bereits konfiguriert."
+        },
         "language": {
             "german": "Deutsch",
             "english": "Englisch",

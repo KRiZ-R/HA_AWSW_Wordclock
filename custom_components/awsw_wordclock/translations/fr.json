@@ -10,7 +10,10 @@
                 "data": {"language": "Langue"}
             }
         },
-        "error": {"invalid_ip": "Adresse IP invalide."},
+        "error": {
+            "invalid_ip": "Adresse IP invalide.",
+            "ip_exists": "Un appareil avec cette adresse IP est déjà configuré."
+        },
         "language": {
             "german": "Allemand",
             "english": "Anglais",

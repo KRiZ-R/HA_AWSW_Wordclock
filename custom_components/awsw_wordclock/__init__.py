@@ -7,15 +7,13 @@ from .const import DOMAIN
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up AWSW WordClock from a config entry."""
     hass.data.setdefault(DOMAIN, {})
+    if entry.entry_id not in hass.data[DOMAIN]:
+        hass.data[DOMAIN][entry.entry_id] = {
+            "config_entry": entry,
+            "session": ClientSession(),
+        }
 
-    # Initialize the session if not already initialized
-    if "session" not in hass.data[DOMAIN]:
-        hass.data[DOMAIN]["session"] = ClientSession()
-
-    # Store the entry data
-    hass.data[DOMAIN][entry.entry_id] = entry.data
-
-    # Register an update listener for options
+    # Register options update listener
     entry.add_update_listener(update_options)
 
     await hass.config_entries.async_forward_entry_setups(entry, ["switch"])
@@ -23,18 +21,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, ["switch"])
-    if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
+    if entry.entry_id in hass.data[DOMAIN]:
+        session = hass.data[DOMAIN][entry.entry_id].get("session")
+        if session:
+            await session.close()
 
-        # Close the session if no entries are left
-        if not hass.data[DOMAIN]:
-            session = hass.data[DOMAIN].pop("session", None)
-            if session:
-                await session.close()
-
-    return unload_ok
+        unload_ok = await hass.config_entries.async_unload_platforms(entry, ["switch"])
+        if unload_ok:
+            hass.data[DOMAIN].pop(entry.entry_id)
+        return unload_ok
+    return False
 
 async def update_options(hass: HomeAssistant, config_entry: ConfigEntry):
-    """Update options if changed."""
-    hass.data[DOMAIN][config_entry.entry_id] = config_entry.data
+    """Handle options updates dynamically."""
+    hass.data[DOMAIN][config_entry.entry_id]["config_entry"] = config_entry
+    await hass.config_entries.async_reload(config_entry.entry_id)

@@ -10,7 +10,10 @@
                 "data": {"language": "Språk"}
             }
         },
-        "error": {"invalid_ip": "Ogiltig IP-adress."},
+        "error": {
+            "invalid_ip": "Ogiltig IP-adress.",
+            "ip_exists": "En enhet med denna IP-adress är redan konfigurerad."
+        },
         "language": {
             "german": "Tyska",
             "english": "Engelska",

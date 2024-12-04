@@ -10,7 +10,10 @@
                 "data": {"language": "Taal"}
             }
         },
-        "error": {"invalid_ip": "Ongeldig IP-adres."},
+        "error": {
+            "invalid_ip": "Ongeldig IP-adres.",
+            "ip_exists": "Een apparaat met dit IP-adres is al geconfigureerd."
+        },
         "language": {
             "german": "Duits",
             "english": "Engels",

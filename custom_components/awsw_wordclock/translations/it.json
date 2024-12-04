@@ -6,11 +6,14 @@
                 "data": {"ip_address": "Indirizzo IP"}
             },
             "language": {
-                "description": "Seleziona la lingua per il tuo WordClock.",
+                "description": "Seleziona la lingua per la tua WordClock.",
                 "data": {"language": "Lingua"}
             }
         },
-        "error": {"invalid_ip": "Indirizzo IP non valido."},
+        "error": {
+            "invalid_ip": "Indirizzo IP non valido.",
+            "ip_exists": "Un dispositivo con questo indirizzo IP è già configurato."
+        },
         "language": {
             "german": "Tedesco",
             "english": "Inglese",
