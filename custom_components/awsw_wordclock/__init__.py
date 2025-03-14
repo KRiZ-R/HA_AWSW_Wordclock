@@ -1,5 +1,8 @@
 """AWSW WordClock integration."""
 import logging
+import asyncio
+import voluptuous as vol
+import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from aiohttp import ClientSession
@@ -7,6 +10,10 @@ from .const import DOMAIN
 
 LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["switch", "light"]
+
+async def update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload the integration when options are updated."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 async def async_setup(hass: HomeAssistant, config) -> bool:
     """Set up the AWSW WordClock component."""
