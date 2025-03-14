@@ -93,8 +93,8 @@ LANGUAGE_WORDS = {
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     """Set up WordClock switches from a config entry."""
     ip_address = entry.data["ip_address"]
-    # Load the language from entry.options or fallback to German
-    language = entry.options.get("language", "German")
+    # Load the language from entry.options or entry.data, then fallback to German
+    language = entry.options.get("language", entry.data.get("language", "German"))
     device_id = f"wordclock_{ip_address.replace('.', '_')}"
     session = hass.data[DOMAIN][entry.entry_id]["session"]
     switches = []
