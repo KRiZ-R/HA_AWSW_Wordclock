@@ -96,9 +96,9 @@ class WordClockBaseLight(LightEntity):
 class WordClockTimeLight(WordClockBaseLight):
     """Representation of WordClock Time Light."""
 
-    def __init__(self, ip_address: str) -> None:
+    def __init__(self, ip_address: str, device_id, session) -> None:
         """Initialize the light."""
-        super().__init__(ip_address)
+        super().__init__(ip_address, device_id, session)
         self._attr_unique_id = f"wordclock_{ip_address}_time"
         self._attr_name = "WordClock Time"
 
@@ -130,9 +130,9 @@ class WordClockTimeLight(WordClockBaseLight):
 class WordClockBackgroundLight(WordClockBaseLight):
     """Representation of WordClock Background Light."""
 
-    def __init__(self, ip_address: str) -> None:
+    def __init__(self, ip_address: str, device_id, session) -> None:
         """Initialize the light."""
-        super().__init__(ip_address)
+        super().__init__(ip_address, device_id, session)
         self._attr_unique_id = f"wordclock_{ip_address}_background"
         self._attr_name = "WordClock Background"
 
