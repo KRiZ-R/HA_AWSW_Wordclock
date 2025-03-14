@@ -1,11 +1,9 @@
-"""Platform for light integration."""
-from __future__ import annotations
-
+"""Light platform for AWSW WordClock."""
 import logging
-from typing import Any
-
+from typing import Any, Dict, List, Optional, Tuple
 import voluptuous as vol
 
+import homeassistant.helpers.config_validation as cv
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
     ATTR_RGB_COLOR,
@@ -14,48 +12,86 @@ from homeassistant.components.light import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
-import aiohttp
+from homeassistant.helpers.entity import DeviceInfo
 
-_LOGGER = logging.getLogger(__name__)
+from .const import DOMAIN
 
-async def async_setup_entry(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
-) -> None:
-    """Set up the WordClock Light platform."""
-    ip_address = config_entry.data["ip"]
+LOGGER = logging.getLogger(__name__)
 
-    async_add_entities([
-        WordClockTimeLight(ip_address),
-        WordClockBackgroundLight(ip_address)
-    ])
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
+    """Set up WordClock lights based on config entry."""
+    ip_address = entry.data["ip_address"]
+    device_id = f"wordclock_{ip_address.replace('.', '_')}"
+    session = hass.data[DOMAIN][entry.entry_id]["session"]
+    
+    LOGGER.debug("Setting up WordClock lights for IP: %s", ip_address)
+    
+    lights = [
+        WordClockTimeLight(ip_address, device_id, session),
+        WordClockBackgroundLight(ip_address, device_id, session),
+    ]
+    
+    async_add_entities(lights)
+    
+    # Store entities in hass.data for service access
+    if "entities" not in hass.data[DOMAIN][entry.entry_id]:
+        hass.data[DOMAIN][entry.entry_id]["entities"] = {}
+    
+    hass.data[DOMAIN][entry.entry_id]["entities"]["light"] = lights
+    LOGGER.debug("Added %d light entities for WordClock", len(lights))
+
 
 class WordClockBaseLight(LightEntity):
     """Base class for WordClock lights."""
 
-    def __init__(self, ip_address: str) -> None:
+    def __init__(self, ip_address, device_id, session):
         """Initialize the light."""
         self._ip_address = ip_address
-        self._attr_is_on = True
-        self._attr_brightness = 255
-        self._attr_rgb_color = (255, 255, 255)
+        self._device_id = device_id
+        self._session = session
+        self._state = True  # Start on by default
+        self._brightness = 255
+        self._rgb_color = (255, 255, 255)
         self._attr_supported_color_modes = {ColorMode.RGB}
         self._attr_color_mode = ColorMode.RGB
-
-    async def _send_request(self, url: str) -> None:
-        """Send request to WordClock."""
+        
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device information."""
+        return {
+            "identifiers": {(DOMAIN, self._device_id)},
+            "name": f"WordClock ({self._ip_address})",
+            "manufacturer": "AWSW",
+            "model": "WordClock",
+        }
+        
+    @property
+    def is_on(self) -> bool:
+        """Return true if light is on."""
+        return self._state
+        
+    @property
+    def brightness(self) -> int:
+        """Return the brightness of this light."""
+        return self._brightness
+        
+    @property
+    def rgb_color(self) -> Tuple[int, int, int]:
+        """Return the rgb color value [int, int, int]."""
+        return self._rgb_color
+        
+    async def _send_request(self, url):
+        """Send request to the WordClock."""
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=5) as response:
-                    if response.status != 200:
-                        _LOGGER.error(
-                            "Error communicating with WordClock: %s", response.status
-                        )
-        except aiohttp.ClientError as err:
-            _LOGGER.error("Error communicating with WordClock: %s", err)
+            LOGGER.debug("Sending request to: %s", url)
+            async with self._session.get(url) as response:
+                if response.status != 200:
+                    LOGGER.error("Failed to send request to %s, HTTP %d", url, response.status)
+                    return False
+                return True
+        except Exception as e:
+            LOGGER.error("Error sending request to %s: %s", url, e)
+            return False
 
 class WordClockTimeLight(WordClockBaseLight):
     """Representation of WordClock Time Light."""
