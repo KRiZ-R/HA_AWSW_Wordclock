@@ -2,6 +2,7 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.components.light import ATTR_RGB_COLOR
 from .const import DOMAIN
 import aiohttp
 import logging
@@ -123,6 +124,7 @@ class WordClockExtraWordSwitch(SwitchEntity):
         self._is_on = False
         self._device_id = device_id
         self._session = session
+        self._rgb_color = (255, 255, 255)  # Default to white
 
     @property
     def name(self):
@@ -131,6 +133,13 @@ class WordClockExtraWordSwitch(SwitchEntity):
     @property
     def is_on(self):
         return self._is_on
+        
+    @property
+    def extra_state_attributes(self):
+        """Return device specific state attributes."""
+        return {
+            ATTR_RGB_COLOR: self._rgb_color,
+        }
 
     @property
     def unique_id(self):
@@ -146,17 +155,26 @@ class WordClockExtraWordSwitch(SwitchEntity):
         }
 
     async def async_turn_on(self, **kwargs):
+        """Turn on the extra word with optional color."""
         self._is_on = True
-        await self._send_request("1")
+        
+        # Handle color if provided
+        if ATTR_RGB_COLOR in kwargs:
+            self._rgb_color = kwargs[ATTR_RGB_COLOR]
+            r, g, b = self._rgb_color
+            url = f"http://{self._ip_address}:2023/ew/?ew{self._word_id}=1&R={r}&G={g}&B={b}"
+        else:
+            url = f"http://{self._ip_address}:2023/ew/?ew{self._word_id}=1"
+            
+        await self._send_request(url)
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         self._is_on = False
-        await self._send_request("0")
+        await self._send_request(f"http://{self._ip_address}:2023/ew/?ew{self._word_id}=0")
         self.async_write_ha_state()
 
-    async def _send_request(self, state):
-        url = f"http://{self._ip_address}:2023/ew/?ew{self._word_id}={state}"
+    async def _send_request(self, url):
         try:
             async with self._session.get(url) as response:
                 if response.status != 200:

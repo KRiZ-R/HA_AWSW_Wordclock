@@ -3,6 +3,16 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from aiohttp import ClientSession
 from .const import DOMAIN
+from .services import async_setup_services, async_unload_services
+
+async def async_setup(hass: HomeAssistant, config) -> bool:
+    """Set up the AWSW WordClock component."""
+    hass.data.setdefault(DOMAIN, {})
+
+    # Set up services
+    await async_setup_services(hass)
+
+    return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up AWSW WordClock from a config entry."""
@@ -16,7 +26,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Register options update listener
     entry.add_update_listener(update_options)
 
-    await hass.config_entries.async_forward_entry_setups(entry, ["switch"])
+    # Set up both switch and light platforms
+    await hass.config_entries.async_forward_entry_setups(entry, ["switch", "light"])
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -26,11 +37,16 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if session:
             await session.close()
 
-        unload_ok = await hass.config_entries.async_unload_platforms(entry, ["switch"])
+        # Unload both switch and light platforms
+        unload_ok = await hass.config_entries.async_unload_platforms(entry, ["switch", "light"])
         if unload_ok:
             hass.data[DOMAIN].pop(entry.entry_id)
         return unload_ok
     return False
+
+async def async_unload(hass: HomeAssistant):
+    """Unload the AWSW WordClock component."""
+    await async_unload_services(hass)
 
 async def update_options(hass: HomeAssistant, config_entry: ConfigEntry):
     """Handle options updates dynamically."""
