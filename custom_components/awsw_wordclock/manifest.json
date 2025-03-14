@@ -1,7 +1,7 @@
 {
   "domain": "awsw_wordclock",
   "name": "AWSW WordClock",
-  "version": "1.5.5",
+  "version": "1.5.6",
   "documentation": "https://github.com/KRiZ-R/HA_AWSW_Wordclock",
   "requirements": [],
   "dependencies": [],
