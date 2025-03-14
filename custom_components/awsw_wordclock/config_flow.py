@@ -17,31 +17,48 @@ class WordClockConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    def __init__(self):
+        """Initialize the flow."""
+        self._ip_address = None
+
     async def async_step_user(self, user_input=None):
-        """Handle the initial step for configuring a new device."""
+        """Handle the initial step for IP address entry."""
         errors = {}
         if user_input is not None:
             ip_address = user_input.get("ip_address")
-            language = user_input.get("language")
-            
+
             # Check if IP is valid
             if not self._is_valid_ip(ip_address):
                 errors["base"] = "invalid_ip"
             elif await self._is_ip_already_configured(ip_address):
                 errors["base"] = "ip_exists"
             else:
-                return self.async_create_entry(
-                    title=f"WordClock ({ip_address})",
-                    data={"ip_address": ip_address, "language": language},
-                )
+                # Store IP and move to language selection
+                self._ip_address = ip_address
+                return await self.async_step_language()
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
                 vol.Required("ip_address"): str,
-                vol.Required("language", default="German"): vol.In(LANGUAGES),
             }),
             errors=errors,
+        )
+
+    async def async_step_language(self, user_input=None):
+        """Handle language selection."""
+        if user_input is not None:
+            language = user_input.get("language")
+            return self.async_create_entry(
+                title=f"WordClock ({self._ip_address})",
+                data={"ip_address": self._ip_address, "language": language},
+            )
+
+        return self.async_show_form(
+            step_id="language",
+            data_schema=vol.Schema({
+                vol.Required("language", default="German"): vol.In(LANGUAGES),
+            }),
         )
 
     def _is_valid_ip(self, ip_address):
@@ -77,8 +94,7 @@ class WordClockOptionsFlow(config_entries.OptionsFlow):
         """Handle the initial step of the options flow."""
         if user_input is not None:
             # Update the options and reload the entry
-            self.hass.config_entries.async_update_entry(self.config_entry, options=user_input)
-            return self.async_create_entry(title="", data={})
+            return self.async_create_entry(title="", data=user_input)
 
         # Show form for updating the language
         return self.async_show_form(
