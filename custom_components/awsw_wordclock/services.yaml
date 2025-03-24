@@ -1,0 +1,13 @@
+set_word_color:
+  name: Set Word Color
+  description: "Set the WordClock light to a specific RGB color."
+  fields:
+    entity_id:
+      description: "The entity ID of the WordClock light to control."
+      example: "light.wordclock_time"
+    rgb_color:
+      description: "The RGB color value as a list of three integers (red, green, blue), each between 0 and 255."
+      example: "[255, 0, 0]"
+    brightness:
+      description: "Optional brightness level from 0 (off) to 255 (maximum brightness). Only works with Time and Background, not the extra words."
+      example: "128"
