@@ -25,7 +25,7 @@ I wanted it to have some more functionality, like changing the light colors of t
   - Spanish: "CUMPLEAÑOS", "ALARMA", "VACACIONES", "DÍA DE BASURA", "FECHA", "HORA DE ALMUERZO", "VEN AQUÍ", "TIMBRE", "TEMPERATURA"
 
 ## Requirements
-- A working AWSW WordClock with API access enabled.
+- A working AWSW WordClock with API access enabled with version V4.7.1 or higher.
 - https://www.printables.com/model/768062-wordclock-16x16-2024 is the one i use
 - Home Assistant version 2024.11 or higher.
 
@@ -55,7 +55,7 @@ I wanted it to have some more functionality, like changing the light colors of t
 
 ## Usage
 - The Background and Text can be used as lights, so you can turn them on and off separately. Additionally, the colors and brightness can be changed. While the WordClock API currently does not support separate brightness levels for the background and text, the brightness is applied uniformly to all texts.
-- Each of the extra words (amount of words differs from one language to another) will appear as lights in Home Assistant. You can turn these words on or off directly from the dashboard or use them in automations. Additionally, you can set the color of the words. Given the WordClock API currently does not have an option to receive the color information, there is no way to retrieve the current color status of the extra words. Also the brightness cannot be set independently, so the brightness of the Background and Text is used.
+- Each of the extra words (the number of words differs from one language to another) now appears as a light in Home Assistant. You can turn these words on or off directly from the dashboard or use them in automations. In addition to setting a custom color, the integration now retrieves the current RGB LED color for each extra word from the WordClock API. This means that the displayed color in Home Assistant accurately reflects the device's actual state.
 - A direct link to the WordClock Web Interface is available under the device details.
 
 ## Troubleshooting

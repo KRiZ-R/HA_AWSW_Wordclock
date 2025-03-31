@@ -21,8 +21,6 @@ import re
 
 from .const import DOMAIN
 
-LOGGER = logging.getLogger(__name__)
-
 # Mapping of extra word light texts per language.
 LANGUAGE_WORDS = {
     "German": {
@@ -254,7 +252,6 @@ class WordClockBaseLight(LightEntity):
         except Exception as e:
             LOGGER.error("Error updating WordClock status: %s", e)
 
-
 class WordClockTimeLight(WordClockBaseLight):
     """Light entity for displaying the 'time' (text) on the WordClock."""
 
@@ -336,13 +333,12 @@ class WordClockBackgroundLight(WordClockBaseLight):
 class WordClockExtraWordLight(LightEntity):
     """Light entity for each extra 'word' LED on the WordClock."""
 
-
     def __init__(self, ip_address, word_id, name, device_id, object_id_prefix, device_name, session):
         """Initialize the light."""
         self._ip_address = ip_address
         self._word_id = word_id
         self._name = name
-        self._state = False  # Using _state instead of _is_on for consistency
+        self._state = False
         self._device_id = device_id
         self._device_name = device_name
         self._session = session
@@ -404,6 +400,32 @@ class WordClockExtraWordLight(LightEntity):
                         self._word_id, response.status)
         except Exception as e:
             LOGGER.error("Error fetching status for extra word %s: %s", self._word_id, e)
+
+        # Fetch the current RGB color info for the extra word from the /ewrgb endpoint
+        rgb_url = f"http://{self._ip_address}:2023/ewrgb/?{self._word_id}"
+        try:
+            async with self._session.get(rgb_url) as rgb_response:
+                if rgb_response.status == 200:
+                    rgb_text = await rgb_response.text()
+                    # Expecting a format like "R=0 G=0 B=255"
+                    r_match = re.search(r"R=(\d+)", rgb_text)
+                    g_match = re.search(r"G=(\d+)", rgb_text)
+                    b_match = re.search(r"B=(\d+)", rgb_text)
+                    if r_match and g_match and b_match:
+                        r = int(r_match.group(1))
+                        g = int(g_match.group(1))
+                        b = int(b_match.group(1))
+                        self._rgb_color = (r, g, b)
+                        LOGGER.debug("Updated RGB color for extra word %s to %s (raw: %s)",
+                                     self._word_id, self._rgb_color, rgb_text.strip())
+                    else:
+                        LOGGER.error("Unexpected RGB response format for extra word %s: %s",
+                                     self._word_id, rgb_text.strip())
+                else:
+                    LOGGER.error("Failed to fetch RGB color for extra word %s, HTTP %d",
+                                 self._word_id, rgb_response.status)
+        except Exception as e:
+            LOGGER.error("Error fetching RGB color for extra word %s: %s", self._word_id, e)
     
     async def async_turn_on(self, **kwargs):
         """Turn on the light, updating color and brightness if provided."""
