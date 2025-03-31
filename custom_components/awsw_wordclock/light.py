@@ -180,8 +180,10 @@ class WordClockBaseLight(LightEntity):
         self._state = True  # Start on by default
         self._attr_brightness = 255
         self._attr_rgb_color = (255, 255, 255)
+        self._last_rgb_color = (255, 255, 255)
         self._attr_supported_color_modes = {ColorMode.RGB}
         self._attr_color_mode = ColorMode.RGB
+        self._attr_should_poll = True
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -243,7 +245,11 @@ class WordClockBaseLight(LightEntity):
             r = int(status_data.get(f"R-{prefix}", "0"))
             g = int(status_data.get(f"G-{prefix}", "0"))
             b = int(status_data.get(f"B-{prefix}", "0"))
-            self._attr_rgb_color = (r, g, b)
+            color = (r, g, b)
+            if color != (0, 0, 0):
+                self._last_rgb_color = color
+                LOGGER.debug("Updated last RGB color for %s to %s", self._attr_name, color)
+            self._attr_rgb_color = color
             # Consider the light off if color is all zeros
             self._state = not (r == 0 and g == 0 and b == 0)
             # Update brightness based on INTENSITY (0-50 mapped to 0–255)
@@ -263,13 +269,16 @@ class WordClockTimeLight(WordClockBaseLight):
         self.entity_id = f"light.{object_id_prefix}_time"
         self._color_key_prefix = "Time"
         self._default_rgb_color = (255, 0, 0)  # Default red
+        self._last_rgb_color = self._default_rgb_color
+        self._attr_rgb_color = self._default_rgb_color
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on the light."""
         if ATTR_RGB_COLOR in kwargs:
             self._attr_rgb_color = kwargs[ATTR_RGB_COLOR]
+            self._last_rgb_color = self._attr_rgb_color
         elif self._attr_rgb_color == (0, 0, 0):
-            self._attr_rgb_color = self._default_rgb_color
+            self._attr_rgb_color = self._last_rgb_color
         if ATTR_BRIGHTNESS in kwargs:
             self._attr_brightness = kwargs[ATTR_BRIGHTNESS]
 
@@ -302,13 +311,16 @@ class WordClockBackgroundLight(WordClockBaseLight):
         self.entity_id = f"light.{object_id_prefix}_background"
         self._color_key_prefix = "Back"
         self._default_rgb_color = (110, 140, 255)  # Default light blue
+        self._last_rgb_color = self._default_rgb_color
+        self._attr_rgb_color = self._default_rgb_color
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on the light."""
         if ATTR_RGB_COLOR in kwargs:
             self._attr_rgb_color = kwargs[ATTR_RGB_COLOR]
+            self._last_rgb_color = self._attr_rgb_color
         elif self._attr_rgb_color == (0, 0, 0):
-            self._attr_rgb_color = self._default_rgb_color
+            self._attr_rgb_color = self._last_rgb_color  # Use last color instead of default
         if ATTR_BRIGHTNESS in kwargs:
             self._attr_brightness = kwargs[ATTR_BRIGHTNESS]
 
